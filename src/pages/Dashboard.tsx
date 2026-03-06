@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Clock, AlertCircle, Calendar, CheckCircle } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 // Mock data
 const attentionItems = [
@@ -29,6 +30,30 @@ const recentActivity = [
   { id: 4, text: "New application received — Frontend Developer", time: "23 min ago" },
   { id: 5, text: "Interview scheduled — Ankit Patel", time: "45 min ago" },
 ];
+
+const savingsData = [
+  { month: "Oct", hoursManual: 320, hoursWithAI: 180, costSaved: 4200 },
+  { month: "Nov", hoursManual: 290, hoursWithAI: 140, costSaved: 4500 },
+  { month: "Dec", hoursManual: 350, hoursWithAI: 155, costSaved: 5850 },
+  { month: "Jan", hoursManual: 310, hoursWithAI: 120, costSaved: 5700 },
+  { month: "Feb", hoursManual: 340, hoursWithAI: 110, costSaved: 6900 },
+  { month: "Mar", hoursManual: 380, hoursWithAI: 105, costSaved: 8250 },
+];
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="border border-border bg-card px-3 py-2 text-sm shadow-sm">
+      <div className="mb-1 font-medium">{label}</div>
+      {payload.map((entry: any) => (
+        <div key={entry.dataKey} className="flex items-center gap-2 text-muted-foreground">
+          <span className="inline-block h-2 w-2" style={{ backgroundColor: entry.color }} />
+          <span>{entry.name}: {entry.dataKey === "costSaved" ? `$${entry.value.toLocaleString()}` : `${entry.value}h`}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function Dashboard() {
   return (
@@ -100,6 +125,46 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* Time & Cost Saved */}
+      <section>
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Time & Cost Saved
+        </h2>
+        <div className="border border-border p-6">
+          <div className="mb-4 flex gap-6 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 bg-foreground" /> Manual Hours</span>
+            <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 bg-muted-foreground/40" /> With AI</span>
+            <span className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: "hsl(var(--chart-2))" }} /> Cost Saved</span>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={savingsData} barGap={2} barCategoryGap="20%">
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--accent))" }} />
+                <Bar dataKey="hoursManual" name="Manual Hours" fill="hsl(var(--foreground))" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="hoursWithAI" name="With AI" fill="hsl(var(--muted-foreground) / 0.35)" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 flex gap-8 border-t border-border pt-4 text-sm">
+            <div>
+              <div className="text-2xl font-semibold tracking-tight">1,230h</div>
+              <div className="text-muted-foreground">Total hours saved</div>
+            </div>
+            <div>
+              <div className="text-2xl font-semibold tracking-tight">$35,400</div>
+              <div className="text-muted-foreground">Estimated cost saved</div>
+            </div>
+            <div>
+              <div className="text-2xl font-semibold tracking-tight">68%</div>
+              <div className="text-muted-foreground">Efficiency gain</div>
+            </div>
+          </div>
         </div>
       </section>
 
